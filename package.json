@@ -1,0 +1,33 @@
+{
+  "name": "vous",
+  "version": "0.0.1",
+  "description": "small 2d game engine",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo . --live -- -t sheetify",
+    "test": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kareniel/vous.git"
+  },
+  "keywords": [
+    "2d",
+    "adventure",
+    "game",
+    "engine"
+  ],
+  "author": "kareniel",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/kareniel/vous/issues"
+  },
+  "homepage": "https://github.com/kareniel/vous#readme",
+  "devDependencies": {
+    "sheetify": "^7.3.0",
+    "trainkit-dev": "^0.1.1"
+  },
+  "dependencies": {
+    "choo": "^6.11.0-preview1"
+  }
+}
