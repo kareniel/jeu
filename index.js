@@ -1,10 +1,8 @@
 var choo = require('choo')
 var html = require('choo/html')
 var css = require('sheetify')
-var Component = require('choo/component')
-
-const W = 800
-const H = 600
+var Nanocomponent = require('choo/component')
+var assert = require('assert')
 
 css('tachyons')
 
@@ -19,65 +17,185 @@ class Vector2 {
     this.x = x
     this.y = y
   }
+
+  add (v) {
+    this.x += v.x
+    this.y += v.y
+
+    return this
+  }
+
+  addVectors (a, b) {
+    this.x = a.x + b.x
+    this.y = b.y + b.y
+
+    return this
+  }
+
+  subVectors (a, b) {
+    this.x = a.x - b.x
+    this.y = a.y - b.y
+
+    return this
+  }
+
+  multiplyScalar (scalar) {
+    this.x *= scalar
+    this.y *= scalar
+
+    return this
+  }
+
+  clone () {
+    return new Vector2(this.x, this.y)
+  }
+}
+
+class Box2 {
+  constructor (min, max) {
+    if (min) assert(min instanceof Vector2, 'min should be type Vector2')
+    if (max) assert(max instanceof Vector2, 'max should be type Vector2')
+
+    this.min = min ? min.clone() : new Vector2(-Infinity, -Infinity)
+    this.max = max ? max.clone() : new Vector2(+Infinity, +Infinity)
+  }
+
+  static from (center, size) {
+    var box = new Box2()
+
+    return box.setFromCenterAndSize(center, size)
+  }
+
+  translate (offset) {
+    this.min.add(offset)
+    this.max.add(offset)
+
+    return this
+  }
+
+  getCenter () {
+    var center = new Vector2()
+
+    return center
+      .addVectors(this.min, this.max)
+      .multiplyScalar(0.5)
+  }
+
+  getSize () {
+    var size = new Vector2()
+
+    return size.subVectors(this.max, this.min)
+  }
+
+  setFromCenterAndSize (center, size) {
+    assert(center instanceof Vector2, 'center should be type Vector2')
+    assert(size instanceof Vector2, 'size should be type Vector2')
+
+    var halfX = size.x / 2
+    var halfY = size.y / 2
+
+    this.min = new Vector2(center.x - halfX, center.y - halfY)
+    this.max = new Vector2(center.x + halfX, center.y + halfY)
+
+    return this
+  }
+
+  clone () {
+    return new Box2(this.min, this.max)
+  }
+}
+
+class Viewport {
+  constructor (target) {
+    var position = target.getCenter()
+    var size = new Vector2(800, 600)
+
+    this.box = Box2.from(position, size)
+    this.target = target
+  }
+
+  update () {
+    this.box.setFromCenterAndSize(this.box.getSize(), this.target.getCenter())
+  }
+}
+
+class Scene {
+  constructor () {
+    var position = new Vector2(0, 0)
+    var size = new Vector2(800, 600)
+
+    this.box = Box2.from(position, size)
+  }
+}
+
+class Movement {
+  constructor (speed = 1) {
+    this.up = new Vector2(0, -speed)
+    this.down = new Vector2(0, speed)
+    this.left = new Vector2(-speed, 0)
+    this.right = new Vector2(speed, 0)
+  }
 }
 
 class Hero {
   constructor () {
-    this.sprite = {
-      width: 24,
-      height: 48
-    }
-
-    this.position = new Vector2(W / 2 - this.sprite.width / 2, H / 2 - this.sprite.height / 2)
+    this.sprite = { size: new Vector2(24, 48) }
+    this.box = Box2.from(new Vector2(), this.sprite.size)
+    this.location = 'demo'
+    this.move = new Movement()
   }
 
   update (game) {
-    if (game.pressedKeys.has('w')) this.position.y--
-    if (game.pressedKeys.has('s')) this.position.y++
-    if (game.pressedKeys.has('a')) this.position.x--
-    if (game.pressedKeys.has('d')) this.position.x++
+    if (game.pressedKeys.has('w')) this.box.translate(this.move.up)
+    if (game.pressedKeys.has('s')) this.box.translate(this.move.down)
+    if (game.pressedKeys.has('a')) this.box.translate(this.move.left)
+    if (game.pressedKeys.has('d')) this.box.translate(this.move.right)
   }
 
   draw (ctx) {
     ctx.fillStyle = 'white'
-    ctx.fillRect(this.position.x, this.position.y, 24, 48)
+    ctx.fillRect(this.box.min.x, this.box.min.y, this.sprite.size.x, this.sprite.size.y)
   }
 }
 
-class Game extends Component {
+var loop = {
+  start (game) {
+    this.game = game
+    this.render = this.render.bind(this)
+    this.update = this.update.bind(this)
+
+    this.update()
+  },
+  update () {
+    this.game.components.updatable.forEach(component => component.update(this.game))
+
+    this.render()
+  },
+  render () {
+    this.game.components.drawable.forEach(component => component.draw(this.game.ctx))
+
+    window.requestAnimationFrame(this.update)
+  }
+}
+
+class Game extends Nanocomponent {
   constructor () {
     super()
 
-    var game = this
-
     this.components = {
       all: [],
-      renderable: [],
+      drawable: [],
       updatable: []
     }
 
+    this.scenes = { }
+
     this.pressedKeys = new Set()
-
-    this.loop = {
-      start () {
-        this.render = this.render.bind(this)
-        this.update = this.update.bind(this)
-        this.update()
-      },
-      update () {
-        game.components.updatable.forEach(component => component.update(game))
-
-        this.render()
-      },
-      render () {
-        game.components.renderable.forEach(component => component.draw(game.ctx))
-        window.requestAnimationFrame(this.update)
-      }
-    }
+    this.loop = loop
   }
 
   register (component) {
-    if (component.draw) this.components.renderable.push(component)
+    if (component.draw) this.components.drawable.push(component)
     if (component.update) this.components.updatable.push(component)
 
     this.components.all.push(component)
@@ -109,7 +227,11 @@ class Game extends Component {
       }
     }
 
-    var components = [bg, new Hero()]
+    var hero = new Hero()
+    this.scenes['demo'] = new Scene()
+    this.viewport = new Viewport(hero.box)
+
+    var components = [bg, hero]
 
     components.forEach(component => this.register(component))
 
@@ -121,7 +243,7 @@ class Game extends Component {
       this.pressedKeys.delete(e.key)
     })
 
-    this.loop.start()
+    this.loop.start(this)
   }
 }
 
@@ -135,7 +257,7 @@ function store (state, emitter) {
 
 function view (state, emit) {
   return html`
-    <body>
+    <body class="overflow-hidden">
       ${game.render()}
     </body>`
 }
