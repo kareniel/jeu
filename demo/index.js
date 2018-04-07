@@ -11,5 +11,12 @@ var game = jeu()
 sheetify('tachyons')
 
 game.on('load', () => game.start(data))
-app.route('*', (state, emit) => html`<body class="overflow-hidden">${game.render()}</body>`)
+app.route('*', view)
 app.mount('body')
+
+function view (state, emit) {
+  return html`
+    <body class="overflow-hidden tc ma3">
+      ${game.render()}
+    </body>`
+}

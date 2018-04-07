@@ -26,8 +26,8 @@ class Scene extends nanobus {
     this.state.components.updatable.forEach(component => component.update(game))
   }
 
-  draw (ctx) {
-    this.state.components.drawable.forEach(component => component.draw(ctx))
+  draw (ctx, viewport) {
+    this.state.components.drawable.forEach(component => component.draw(ctx, viewport))
   }
 }
 

@@ -6,6 +6,15 @@ class Vector2 {
     this.y = y
   }
 
+  copy (v) {
+    assert(v instanceof Vector2, 'copy: v should be type Vector2')
+
+    this.x = v.x
+    this.y = v.y
+
+    return this
+  }
+
   add (v) {
     assert(v instanceof Vector2, 'add: v should be type Vector2')
 
@@ -60,6 +69,22 @@ class Vector2 {
     return this
   }
 
+  divide (v) {
+    assert(v instanceof Vector2, 'divide: v should be type Vector2')
+
+    this.x /= v.x
+    this.y /= v.y
+
+    return this
+  }
+
+  divideScalar (scalar) {
+    this.x /= scalar
+    this.y /= scalar
+
+    return this
+  }
+
   clone () {
     return new Vector2(this.x, this.y)
   }
@@ -67,8 +92,8 @@ class Vector2 {
 
 class Box2 {
   constructor (min, max) {
-    if (min) assert(min instanceof Vector2, 'min should be type Vector2')
-    if (max) assert(max instanceof Vector2, 'max should be type Vector2')
+    if (min) assert(min instanceof Vector2, 'Box2: min should be type Vector2')
+    if (max) assert(max instanceof Vector2, 'Box2: max should be type Vector2')
 
     this.min = min ? min.clone() : new Vector2(-Infinity, -Infinity)
     this.max = max ? max.clone() : new Vector2(+Infinity, +Infinity)
@@ -83,8 +108,8 @@ class Box2 {
   }
 
   static from (center, size) {
-    assert(center instanceof Vector2, 'center should be type Vector2')
-    assert(size instanceof Vector2, 'size should be type Vector2')
+    assert(center instanceof Vector2, 'from: center should be type Vector2')
+    assert(size instanceof Vector2, 'from: size should be type Vector2')
 
     var box = new Box2()
 
@@ -92,7 +117,7 @@ class Box2 {
   }
 
   translate (offset) {
-    assert(offset instanceof Vector2, 'offset should be type Vector2')
+    assert(offset instanceof Vector2, 'translate: offset should be type Vector2')
 
     this.min.add(offset)
     this.max.add(offset)
@@ -115,8 +140,8 @@ class Box2 {
   }
 
   setFromCenterAndSize (center, size) {
-    assert(center instanceof Vector2, 'center should be type Vector2')
-    assert(size instanceof Vector2, 'size should be type Vector2')
+    assert(center instanceof Vector2, 'setFromCenterAndSize: center should be type Vector2')
+    assert(size instanceof Vector2, 'setFromCenterAndSize: size should be type Vector2')
 
     var halfX = size.x / 2
     var halfY = size.y / 2
@@ -129,6 +154,19 @@ class Box2 {
 
   clone () {
     return new Box2(this.min, this.max)
+  }
+
+  intersectsBox (box) {
+    assert(box instanceof Box2, 'intersectsBox: box should be type Box2')
+
+    // using 4 splitting planes to rule out intersections
+
+    return !(
+      box.max.x < this.min.x ||
+      box.min.x > this.max.x ||
+      box.max.y < this.min.y ||
+      box.min.y > this.max.y
+    )
   }
 }
 

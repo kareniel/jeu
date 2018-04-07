@@ -1,6 +1,7 @@
 var html = require('choo/html')
 var Nanocomponent = require('choo/component')
 var nanobus = require('nanobus')
+var assert = require('assert')
 
 var Timer = require('./classes/Timer')
 var { Vector2, Box2 } = require('./classes/math')
@@ -10,40 +11,63 @@ var keyboard = {
   arrows: new Set()
 }
 
+var position = new Vector2(0, 0)
+var size = new Vector2(24, 48)
+
 var hero = {
-  box: Box2.from(new Vector2(), new Vector2(24, 32)),
+  position: position,
   sprite: {
-    size: new Vector2(24, 48)
+    size
   },
+  corner: new Vector2(),
+  box: new Box2(position, size),
   speed: 1,
+  scene: null,
   move (vector, speed = 1) {
-    this._vector = vector.clone().multiplyScalar(speed)
-    this.box.translate(this._vector)
+    this.box.translate(vector.clone().multiplyScalar(speed * 2.4))
+    this.position.copy(this.box.min)
+  },
+  teleport (scene, position) {
+    this.scene = scene
+    this.box.setFromCenterAndSize(position, this.sprite.size)
+    this.position.copy(position)
   },
   update (game) {
-    this.speed = game.keyboard.arrows.size > 1 ? 0.7 : 1
+    this.speed = game.keyboard.arrows.size > 1 ? 0.75 : 1
 
     game.keyboard.arrows.forEach(key => {
       this.move(DIRECTION_MAP[key], this.speed)
     })
   },
+  draw (ctx, viewport) {
+    if (!viewport.intersectsBox(this.box)) return
 
-  draw (ctx) {
+    this.corner.copy(this.position).sub(viewport.min)
+
     ctx.fillStyle = 'white'
-    ctx.fillRect(this.box.min.x, this.box.min.y, this.sprite.size.x, this.sprite.size.y)
+    ctx.fillRect(this.corner.x, this.corner.y, this.sprite.size.x, this.sprite.size.y)
   }
 }
 
-var viewport = {
-  target: null,
-  box: Box2.from(new Vector2(), new Vector2(800, 600)),
+class Viewport extends Box2 {
+  constructor (position, size) {
+    super()
 
-  follow (vector) {
-    this.target = vector
-  },
+    this.setFromCenterAndSize(position, size)
+    this.size = size
+    this.target = null
+  }
 
-  update () {
-    this.box.setFromCenterAndSize(this.box.getSize(), this.target)
+  follow (target) {
+    assert.ok(target.position && target.position instanceof Vector2, 'target should have a position property')
+
+    this.target = target
+  }
+
+  update (game) {
+    if (this.target) {
+      this.setFromCenterAndSize(this.target.position, this.size)
+    }
   }
 }
 
@@ -61,12 +85,17 @@ var loop = {
   update () {
     this.game.currentScene.update(this.game)
     this.game.hero.update(this.game)
+    this.game.viewport.update(this.game)
 
     this.render()
   },
   render () {
-    this.game.currentScene.draw(this.game.ctx)
-    this.game.hero.draw(this.game.ctx)
+    // bg
+    this.game.ctx.fillStyle = 'black'
+    this.game.ctx.fillRect(0, 0, this.game.viewport.size.x, this.game.viewport.size.y)
+
+    this.game.currentScene.draw(this.game.ctx, this.game.viewport)
+    this.game.hero.draw(this.game.ctx, this.game.viewport)
 
     window.requestAnimationFrame(this.update)
   }
@@ -81,7 +110,7 @@ class Game extends Nanocomponent {
     this.emit = this.emitter.emit.bind(this.emitter)
 
     this.hero = hero
-    this.viewport = viewport
+    this.viewport = new Viewport(new Vector2(), new Vector2(800, 600))
     this.keyboard = keyboard
     this.loop = loop
 
@@ -90,7 +119,7 @@ class Game extends Nanocomponent {
   }
 
   createElement () {
-    return html`<canvas width="800" height="600"></canvas>`
+    return html`<canvas class="ba" width="800" height="600"></canvas>`
   }
 
   update () {
@@ -106,6 +135,11 @@ class Game extends Nanocomponent {
   start (data) {
     this.scenes = data.scenes
     this.currentScene = data.scenes[data.currentScene]
+
+    var startingPosition = this.currentScene.size.clone().divideScalar(2)
+
+    this.hero.teleport(this.currentScene, startingPosition)
+    this.viewport.follow(this.hero)
 
     document.addEventListener('keydown', e => {
       var key = KEY_MAP[e.key]
