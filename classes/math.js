@@ -7,6 +7,8 @@ class Vector2 {
   }
 
   add (v) {
+    assert(v instanceof Vector2, 'add: v should be type Vector2')
+
     this.x += v.x
     this.y += v.y
 
@@ -14,6 +16,9 @@ class Vector2 {
   }
 
   addVectors (a, b) {
+    assert(a instanceof Vector2, 'addVectors: a should be type Vector2')
+    assert(b instanceof Vector2, 'addVectors: b should be type Vector2')
+
     this.x = a.x + b.x
     this.y = b.y + b.y
 
@@ -21,6 +26,8 @@ class Vector2 {
   }
 
   sub (v) {
+    assert(v instanceof Vector2, 'sub: v should be type Vector2')
+
     this.x -= v.x
     this.y -= v.y
 
@@ -28,6 +35,9 @@ class Vector2 {
   }
 
   subVectors (a, b) {
+    assert(a instanceof Vector2, 'subVectors: a should be type Vector2')
+    assert(b instanceof Vector2, 'subVectors: b should be type Vector2')
+
     this.x = a.x - b.x
     this.y = a.y - b.y
 
@@ -35,6 +45,8 @@ class Vector2 {
   }
 
   multiply (v) {
+    assert(v instanceof Vector2, 'multiply: v should be type Vector2')
+
     this.x *= v.x
     this.y *= v.y
 
@@ -62,13 +74,26 @@ class Box2 {
     this.max = max ? max.clone() : new Vector2(+Infinity, +Infinity)
   }
 
+  get width () {
+    return this.getSize().x
+  }
+
+  get height () {
+    return this.getSize().y
+  }
+
   static from (center, size) {
+    assert(center instanceof Vector2, 'center should be type Vector2')
+    assert(size instanceof Vector2, 'size should be type Vector2')
+
     var box = new Box2()
 
     return box.setFromCenterAndSize(center, size)
   }
 
   translate (offset) {
+    assert(offset instanceof Vector2, 'offset should be type Vector2')
+
     this.min.add(offset)
     this.max.add(offset)
 
