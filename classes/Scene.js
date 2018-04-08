@@ -1,14 +1,12 @@
 var nanobus = require('nanobus')
-var { Vector2 } = require('./math')
+var { Vector2, Box2 } = require('./math')
 var { IDrawable, IUpdatable } = require('../interfaces')
 
-var DEFAULT_SIZE = new Vector2(256, 256)
-
 class Scene extends nanobus {
-  constructor (size = DEFAULT_SIZE) {
+  constructor () {
     super()
 
-    this.size = size
+    this.box = Box2.from(new Vector2(0, 0), new Vector2(0, 0))
     this.state = {
       components: {
         drawable: [],
@@ -20,6 +18,12 @@ class Scene extends nanobus {
   register (component) {
     if (component instanceof IDrawable) this.state.components.drawable.push(component)
     if (component instanceof IUpdatable) this.state.components.updatable.push(component)
+
+    console.log('position', component.box)
+
+    this.box.union(component.box)
+
+    console.log('size', this.box.getSize())
   }
 
   update (game) {

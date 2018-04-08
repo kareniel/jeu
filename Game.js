@@ -29,8 +29,10 @@ var hero = {
   },
   teleport (scene, position) {
     this.scene = scene
+
     this.box.setFromCenterAndSize(position, this.sprite.size)
     this.position.copy(position)
+    this.position.sub(this.sprite.size.clone().divideScalar(2))
   },
   update (game) {
     this.speed = game.keyboard.arrows.size > 1 ? 0.75 : 1
@@ -136,9 +138,7 @@ class Game extends Nanocomponent {
     this.scenes = data.scenes
     this.currentScene = data.scenes[data.currentScene]
 
-    var startingPosition = this.currentScene.size.clone().divideScalar(2)
-
-    this.hero.teleport(this.currentScene, startingPosition)
+    this.hero.teleport(this.currentScene, this.currentScene.box.getCenter())
     this.viewport.follow(this.hero)
 
     document.addEventListener('keydown', e => {

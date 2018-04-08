@@ -7,9 +7,7 @@ class Background extends Layer {
   constructor () {
     super()
 
-    this.size = new Vector2(500, 500)
-    this.position = new Vector2(400, 300)
-    this.box = Box2.from(this.position, this.size)
+    this.box = new Box2(new Vector2(0, 0), new Vector2(1000, 1000))
     this.corner = new Vector2()
   }
 
@@ -19,12 +17,11 @@ class Background extends Layer {
     this.corner.copy(this.box.min).sub(viewport.min)
 
     ctx.fillStyle = 'blue'
-    ctx.fillRect(this.corner.x, this.corner.y, this.size.x, this.size.y)
+    ctx.fillRect(this.corner.x, this.corner.y, this.box.width, this.box.height)
   }
 }
 
-var size = new Vector2(800, 600)
-var scene = new Scene(size)
+var scene = new Scene()
 
 scene.register(new Background())
 

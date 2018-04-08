@@ -29,7 +29,7 @@ class Vector2 {
     assert(b instanceof Vector2, 'addVectors: b should be type Vector2')
 
     this.x = a.x + b.x
-    this.y = b.y + b.y
+    this.y = a.y + b.y
 
     return this
   }
@@ -85,6 +85,24 @@ class Vector2 {
     return this
   }
 
+  min (v) {
+    assert(v instanceof Vector2, 'min: v should be type Vector2')
+
+    this.x = Math.min(this.x, v.x)
+    this.y = Math.min(this.y, v.y)
+
+    return this
+  }
+
+  max (v) {
+    assert(v instanceof Vector2, 'max: v should be type Vector2')
+
+    this.x = Math.max(this.x, v.x)
+    this.y = Math.max(this.y, v.y)
+
+    return this
+  }
+
   clone () {
     return new Vector2(this.x, this.y)
   }
@@ -126,17 +144,15 @@ class Box2 {
   }
 
   getCenter () {
-    var center = new Vector2()
+    var center = new Vector2().addVectors(this.min, this.max).multiplyScalar(0.5)
 
     return center
-      .addVectors(this.min, this.max)
-      .multiplyScalar(0.5)
   }
 
   getSize () {
-    var size = new Vector2()
+    var size = new Vector2().subVectors(this.max, this.min)
 
-    return size.subVectors(this.max, this.min)
+    return size
   }
 
   setFromCenterAndSize (center, size) {
@@ -167,6 +183,24 @@ class Box2 {
       box.max.y < this.min.y ||
       box.min.y > this.max.y
     )
+  }
+
+  containsBox (box) {
+    return (
+      this.min.x <= box.min.x &&
+      box.max.x <= this.max.x &&
+      this.min.y <= box.min.y &&
+      box.max.y <= this.max.y
+    )
+  }
+
+  union (box) {
+    assert(box instanceof Box2, 'assert: box should be type Box2')
+
+    this.min.min(box.min)
+    this.max.max(box.max)
+
+    return this
   }
 }
 
