@@ -1,7 +1,7 @@
 {
   "name": "jeu",
   "author": "kareniel",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "small 2d game engine",
   "keywords": [
     "2d",
@@ -11,24 +11,24 @@
   ],
   "main": "index.js",
   "scripts": {
-    "start": "budo demo --live -- -t sheetify",
+    "start": "budo example/index.js:bundle.js --dir example --live",
     "test": "standard --fix"
   },
   "dependencies": {
-    "choo": "^6.11.0-preview1",
-    "mixwith": "^0.1.1"
+    "choo": "^6.13.0"
   },
   "devDependencies": {
-    "sheetify": "^7.3.0",
-    "trainkit-dev": "^0.1.2"
+    "budo": "^11.3.2",
+    "choo-devtools": "^2.5.1",
+    "standard": "^11.0.1"
   },
-  "homepage": "https://github.com/kareniel/vous#readme",
+  "homepage": "https://github.com/kareniel/jeu#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kareniel/vous.git"
+    "url": "git+https://github.com/kareniel/jeu.git"
   },
   "bugs": {
-    "url": "https://github.com/kareniel/vous/issues"
+    "url": "https://github.com/kareniel/jeu/issues"
   },
   "license": "Apache-2.0"
 }

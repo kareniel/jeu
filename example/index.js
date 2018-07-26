@@ -1,17 +1,8 @@
-# jeu
-
-a small 2d game framework based on choo.
-
-
-## usage
-
-```js
 var jeu = require('../src')
-var Menu = require('./components/Menu')
 
 var game = jeu({
-  ui: {
-    Menu: Menu
+  components: {
+    menu: undefined
   },
   load () {
     return Promise.resolve()
@@ -37,6 +28,3 @@ function store (state, emitter) {
     })
   })
 }
-
-
-```
