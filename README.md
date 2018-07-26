@@ -6,7 +6,8 @@ a small 2d game framework based on choo.
 ## usage
 
 ```js
-var jeu = require('../src')
+var jeu = require('jeu')
+
 var Menu = require('./components/Menu')
 
 var game = jeu({
@@ -37,6 +38,5 @@ function store (state, emitter) {
     })
   })
 }
-
 
 ```
