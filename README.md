@@ -14,14 +14,12 @@ var game = jeu({
   ui: {
     Menu: Menu
   },
-  load () {
-    return Promise.resolve()
+  load (done) {
+    done()
   },
-
   update (delta) {
 
   },
-
   draw () {
     this.ctx.fillColor = 'black'
     this.ctx.fillRect(0, 0, 320, 240)

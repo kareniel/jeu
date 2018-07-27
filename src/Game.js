@@ -17,10 +17,12 @@ module.exports = class Game {
     this.el = el
     this.ctx = el.getContext('2d')
 
-    this.load().then(() => {
-      this.emit(EVENTS.LOADED)
-      window.requestAnimationFrame(this.tick)
-    })
+    this.load(this.onload.bind(this))
+  }
+
+  onload () {
+    this.emit(EVENTS.LOADED)
+    window.requestAnimationFrame(this.tick)
   }
 
   tick (elapsed) {
