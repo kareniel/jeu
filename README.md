@@ -8,12 +8,7 @@ a small 2d game framework based on choo.
 ```js
 var jeu = require('jeu')
 
-var Menu = require('./components/Menu')
-
 var game = jeu({
-  ui: {
-    Menu: Menu
-  },
   load (done) {
     done()
   },
@@ -26,15 +21,12 @@ var game = jeu({
   }
 })
 
-game.use(store)
 game.mount('#game')
 
-function store (state, emitter) {
-  emitter.on('DOMContentLoaded', () => {
-    window.addEventListener('keydown', e => {
-      if (e.key === 'Escape') emitter.emit(jeu.EVENTS.TOGGLE_MENU)
-    })
-  })
-}
-
 ```
+
+## api (so far)
+
+`game.graphics`
+
+`game.graphics.rectangle`

@@ -6,9 +6,7 @@ var Game = require('./Game')
 var MenuContainer = require('./components/MenuContainer')
 var Viewport = require('./components/Viewport')
 
-const { EVENTS } = require('./constants')
-
-jeu.EVENTS = EVENTS
+var { EVENTS } = require('./constants')
 
 module.exports = jeu
 
@@ -39,6 +37,7 @@ function jeu (opts) {
   function store (state, emitter, app) {
     var game = new Game(state, emitter)
 
+    game.init = opts.init
     game.load = opts.load
     game.update = opts.update
     game.draw = opts.draw

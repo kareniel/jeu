@@ -12,7 +12,8 @@
   "main": "index.js",
   "scripts": {
     "start": "budo example/index.js:bundle.js --dir example --live",
-    "test": "standard --fix"
+    "test": "standard --fix",
+    "demo:ship": "budo demo/ship --live"
   },
   "dependencies": {
     "choo": "^6.13.0"
@@ -20,7 +21,9 @@
   "devDependencies": {
     "budo": "^11.3.2",
     "choo-devtools": "^2.5.1",
-    "standard": "^11.0.1"
+    "matter-js": "^0.14.2",
+    "standard": "^11.0.1",
+    "three": "^0.94.0"
   },
   "homepage": "https://github.com/kareniel/jeu#readme",
   "repository": {

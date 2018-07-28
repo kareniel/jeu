@@ -1,6 +1,10 @@
-const { EVENTS } = require('./constants')
+const { EVENTS, KEYS } = require('./constants')
 
-module.exports = class Game {
+var Keyboard = require('./Keyboard')
+var Gamepads = require('./Gamepads')
+var Debugger = require('./Debugger')
+
+class Game {
   constructor (state, emitter) {
     this.__delta = 0
     this._previousElapsed = 0
@@ -11,13 +15,24 @@ module.exports = class Game {
     this.paused = false
 
     this.tick = this.tick.bind(this)
+
+    this.loadModules()
+  }
+
+  loadModules () {
+    this.debugger = new Debugger(this)
+
+    // input
+    this.keyboard = new Keyboard()
+    this.gamepads = Gamepads.from(navigator)
   }
 
   run (el) {
     this.el = el
     this.ctx = el.getContext('2d')
 
-    this.load(this.onload.bind(this))
+    this.init()
+    this.load(() => this.onload())
   }
 
   onload () {
@@ -38,6 +53,11 @@ module.exports = class Game {
     this.draw()
   }
 
+  clear () {
+    this.ctx.fillStyle = 'black'
+    this.ctx.fillRect(0, 0, this.el.width, this.el.height)
+  }
+
   pause () {
     this.paused = true
 
@@ -52,6 +72,10 @@ module.exports = class Game {
     window.requestAnimationFrame(this.tick)
   }
 
+  init () {
+    throw new Error('jeu: init should be implemented!')
+  }
+
   load () {
     throw new Error('jeu: load should be implemented!')
   }
@@ -64,3 +88,8 @@ module.exports = class Game {
     throw new Error('jeu: draw should be implemented!')
   }
 }
+
+Game.EVENTS = EVENTS
+Game.KEYS = KEYS
+
+module.exports = Game
